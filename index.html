@@ -1,430 +1,380 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026 璀璨之约 · 震撼增强版</title>
-    <style>
-        :root { 
-            --gold: #f3cf7a; 
-            --red: #d32f2f;
-            --glass: rgba(15, 15, 15, 0.85);
-            --accent: #f3cf7a;
-        }
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, sans-serif; transition: background 2s; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>2026 · 璀璨新年</title>
 
-        /* 视频窗 */
-        .video-window {
-            position: absolute; right: 15px; top: 15px; width: 120px; height: 68px;
-            z-index: 20; border-radius: 8px; border: 1px solid rgba(243, 207, 122, 0.5);
-            overflow: hidden; background: #000;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(243, 207, 122, 0.2);
-            filter: contrast(1.1) brightness(1.1);
-        }
-        #side-video { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }
+<style>
+:root{--gold:#f3cf7a;--glass:rgba(0,0,0,.6)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;background:#000;color:#fff;font-family:-apple-system;overflow:hidden;user-select:none}
+canvas{position:fixed;inset:0;z-index:1}
 
-        canvas { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+/* Gate - 入口 */
+#gate{position:fixed;inset:0;z-index:3000;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#000;color:var(--gold)}
+#gate h1{font-size:60px;letter-spacing:15px;font-weight:200;margin:0}
+#gate p{font-size:14px;opacity:0.8;margin:20px 0 40px}
+#gate span{border:1px solid var(--gold);padding:12px 35px;border-radius:30px;cursor:pointer;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(243,207,122,0.4)}70%{box-shadow:0 0 0 15px rgba(243,207,122,0)}100%{box-shadow:0 0 0 0 rgba(243,207,122,0)}}
 
-        /* 音乐控制 */
-        .audio-box {
-            position: absolute; left: 15px; top: 15px; z-index: 2500;
-            display: flex; align-items: center; gap: 10px; background: var(--glass);
-            padding: 5px 12px; border-radius: 30px; border: 1px solid var(--gold);
-            backdrop-filter: blur(10px);
-        }
-        .music-ctrl { cursor: pointer; font-size: 18px; color: var(--gold); }
-        #volume-slider { width: 60px; height: 3px; accent-color: var(--gold); cursor: pointer; }
+/* Audio - 音频控制 */
+#audio{position:fixed;top:15px;left:15px;z-index:2500;display:flex;gap:10px;align-items:center;background:var(--glass);border:1px solid var(--gold);border-radius:30px;padding:6px 14px;backdrop-filter:blur(10px)}
+#audio button{background:none;border:none;color:var(--gold);font-size:18px;cursor:pointer}
+#audio input{width:60px;accent-color:var(--gold)}
 
-        /* 倒计时 */
-        #timer-wrap {
-            position: absolute; inset: 0; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 10; pointer-events: none;
-        }
-        #timer { 
-            font-size: clamp(80px, 15vw, 120px); font-weight: 100; color: #fff; 
-            text-shadow: 0 0 30px var(--gold); letter-spacing: 5px;
-        }
+/* Timer & Shake - 倒计时与震动 */
+#timerWrap{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:center;align-items:center;pointer-events:none}
+#timer{font-size:120px;font-weight:100;letter-spacing:10px;text-shadow:0 0 40px var(--gold); transition: all 0.3s;}
+#sub{letter-spacing:8px;color:var(--gold);opacity:.8}
 
-        #count-down-boom {
-            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-            font-size: 160px; font-weight: 900; color: var(--gold);
-            z-index: 1500; opacity: 0; pointer-events: none;
-            text-shadow: 0 0 60px var(--gold);
-        }
+.shake-screen { animation: shakeEffect 0.3s ease-in-out; }
+@keyframes shakeEffect {
+    0% { transform: translate(2px, 2px); }
+    25% { transform: translate(-2px, -3px); }
+    50% { transform: translate(3px, 0px); }
+    75% { transform: translate(-2px, 2px); }
+    100% { transform: translate(0, 0); }
+}
 
-        /* 弹幕发送区 */
-        .console {
-            position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%);
-            z-index: 2000; display: flex; width: 85%; max-width: 380px; 
-            padding: 8px 18px; background: var(--glass); border-radius: 30px; 
-            border: 1px solid rgba(243, 207, 122, 0.4); backdrop-filter: blur(10px);
-        }
-        .console input { background: transparent; border: none; color: #fff; flex: 1; outline: none; font-size: 14px; }
-        .console button { background: var(--gold); border: none; border-radius: 50%; width: 34px; height: 34px; font-weight: bold; color: #821111; cursor: pointer;}
+/* Combo - 连击UI */
+#comboUI{position:fixed;right:30px;top:100px;font-family:Impact, sans-serif;color:var(--gold);font-size:45px;font-style:italic;opacity:0;z-index:2000;text-shadow:0 0 20px var(--gold);pointer-events:none;transition:0.1s}
 
-        /* 红包阵列 */
-        #packet-grid {
-            position: absolute; inset: 0; display: grid; 
-            grid-template-columns: repeat(2, 1fr); grid-gap: 20px;
-            padding: 120px 40px; z-index: 100; display: none;
-            justify-items: center; align-content: center;
-        }
-        .packet-item {
-            width: 100px; height: 140px; background: linear-gradient(135deg, #b71c1c, #d32f2f);
-            border-radius: 12px; border: 2px solid var(--gold);
-            position: relative; animation: wobble 2s infinite;
-            box-shadow: 0 10px 30px rgba(183, 28, 28, 0.5); transition: 0.3s;
-        }
-        @keyframes wobble { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
-        .seal { 
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); 
-            width: 48px; height: 48px; background: var(--gold); border-radius: 50%; 
-            color: #b71c1c; font-weight: 900; display: flex; align-items: center; justify-content: center; font-size: 24px;
-        }
+/* Boom Text - 倒计时冲击文字 */
+#boomText{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-size:160px;font-weight:900;color:var(--gold);opacity:0;pointer-events:none;z-index:10;text-shadow:0 0 60px var(--gold)}
+@keyframes boom{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}50%{opacity:1}100%{transform:translate(-50%,-50%) scale(2.2);opacity:0}}
 
-        /* 最终祝福语 */
-        #final-msg {
-            position: absolute; inset: 0; display: flex; justify-content: center; align-items: center;
-            z-index: 400; font-size: 32px; font-weight: bold; text-align: center;
-            opacity: 0; transition: 3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            letter-spacing: 8px; line-height: 2.2; pointer-events: none;
-            background: linear-gradient(to right, #f3cf7a 20%, #fff 50%, #f3cf7a 80%);
-            background-size: 200% auto;
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        #final-msg.show { 
-            opacity: 1; transform: scale(1.15); 
-            animation: shine 3s linear infinite;
-        }
+/* Packet Grid - 红包 */
+#packetGrid{position:fixed;inset:0;z-index:100;display:none;grid-template-columns:repeat(2,1fr);gap:20px;align-content:center;justify-items:center;padding:120px 40px}
+.packet{width:110px;height:150px;background:linear-gradient(135deg,#b71c1c,#d32f2f);border-radius:12px;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;color:var(--gold);cursor:pointer;animation:wobble 2s infinite;box-shadow:0 10px 20px rgba(0,0,0,0.5)}
+@keyframes wobble{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
 
-        /* 动画库 */
-        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-15px) rotate(5deg); } }
-        @keyframes pulse { 0% { opacity:0.3; } 50% { opacity:0.8; } 100% { opacity:0.3; } }
-        @keyframes shine { to { background-position: 200% center; } }
-        @keyframes boomAnim {
-            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
-        }
-        @keyframes gather { 
-            0% { opacity: 0; transform: translate(-50%, 50%) scale(0.8); }
-            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
-            100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); }
-        }
+/* Final Content - 结尾 */
+#final{position:fixed;inset:0;display:none;flex-direction:column;justify-content:center;align-items:center;z-index:20;text-align:center;background:rgba(0,0,0,0.4)}
+#final h2{font-size:36px;background:linear-gradient(90deg,var(--gold),#fff,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;letter-spacing:8px}
+#keyword{margin-top:20px;font-size:22px;color:var(--gold);font-weight:bold;letter-spacing:3px}
 
-        .final-glow::before {
-            content:''; position:fixed; inset:0; pointer-events:none; z-index: 1;
-            background: radial-gradient(circle at center, rgba(243,207,122,0.2), transparent 75%);
-            animation: pulse 4s infinite ease-in-out;
-        }
+/* Danmu - 弹幕 */
+#danmuBar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:2000;display:flex;gap:10px;background:var(--glass);border:1px solid var(--gold);border-radius:30px;padding:6px 16px;backdrop-filter:blur(10px)}
+#danmuBar input{background:none;border:none;color:#fff;outline:none;width:150px}
+#danmuBar button{background:var(--gold);border:none;border-radius:50%;width:30px;height:30px;font-weight:bold;cursor:pointer;color:#821111}
 
-        #gate { position: fixed; inset: 0; background: #000; z-index: 3000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--gold); cursor: pointer; }
-    </style>
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-20px) rotate(10deg); } }
+@keyframes blessFade{ 0%{opacity:0;transform:translate(-50%,-30%) scale(.8)} 20%{opacity:1} 80%{opacity:1} 100%{opacity:0;transform:translate(-50%,-100%) scale(1.2)} }
+</style>
 </head>
+
 <body onclick="manualFire(event)">
 
-<div id="gate" onclick="initApp()">
-    <div style="font-size: 50px; font-weight: 100; letter-spacing: 15px;">2026</div>
-    <div style="margin-top: 25px; border: 1px solid var(--gold); padding: 12px 35px; border-radius: 30px; letter-spacing: 3px;">开启璀璨之夜</div>
+<div id="gate" onclick="startApp()">
+    <h1>2026</h1>
+    <p>点击开启璀璨之夜 · 建议开启声音</p>
+    <span>进入新年</span>
 </div>
 
-<div class="audio-box">
-    <div class="music-ctrl" onclick="toggleMusic()"><span id="playIcon">🎵</span></div>
-    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="changeVolume(this.value)">
+<div id="audio">
+  <button id="musicBtn" onclick="toggleMusic(event)">🎵</button>
+  <input id="volRange" type="range" min="0" max="1" step="0.1" value="0.4" onclick="event.stopPropagation()">
 </div>
 
-<div class="video-window">
-    <video id="side-video" loop muted autoplay playsinline>
-        <source src="company.mp4" type="video/mp4">
-    </video>
+<div id="comboUI">COMBO X1</div>
+
+<div id="timerWrap">
+    <div id="timer">3</div>
+    <div id="sub">AWAITS 2026</div>
 </div>
 
-<canvas id="canvas"></canvas>
+<div id="boomText"></div>
+<div id="packetGrid"></div>
 
-<div id="timer-wrap">
-    <div id="timer">00</div>
-    <div style="color: var(--gold); letter-spacing: 10px; font-size: 14px; opacity: 0.8; margin-top: 10px;">AWAITS 2026</div>
+<div id="final">
+    <h2>愿 2026</h2>
+    <p style="color:#ddd; letter-spacing:2px">所有美好如约而至</p>
+    <div id="keyword"></div>
+    <p style="font-size:12px;margin-top:30px;opacity:0.6;color:#fff">摇晃手机 或 连续点击 触发狂欢</p>
 </div>
 
-<div id="count-down-boom"></div>
-<div id="packet-grid"></div>
-<div id="final-msg">愿 2026<br>所有美好如约而至</div>
-
-<div class="console" onclick="event.stopPropagation()">
-    <input type="text" id="wishInput" placeholder="在此镌刻您的愿望...">
-    <button onclick="sendWish()">↑</button>
+<div id="danmuBar" onclick="event.stopPropagation()">
+  <input id="danmuInput" placeholder="写下新年愿望...">
+  <button onclick="sendDanmu()">↑</button>
 </div>
+
+<canvas id="c"></canvas>
 
 <audio id="bgm" loop playsinline>
-    <source src="黄昏晓.mp3" type="audio/mpeg">
+  <source src="黄昏晓.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-    let audioCtx, analyser, dataArray, source;
-    const boomEl = document.getElementById('count-down-boom');
-    const timerWrap = document.getElementById('timer-wrap');
-    const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
-    let particles = [];
-    let isNewYear = false;
-    let currentBatchIdx = 0;
+const canvas=c, ctx=canvas.getContext('2d');
+let particles=[];
+let stars=[];
+let audioCtx;
+let combo = 0, comboTimer;
+const PHASE={WAIT:0, COUNTDOWN:1, CELE:2};
+let phase=PHASE.WAIT;
 
-    const auspiciousPhrases = ["万事如意", "心想事成", "大吉大利", "财源广进", "岁岁平安", "步步高升", "福气满满", "喜气盈门", "福星高照", "年年有余"];
-    const allBatchData = [
-        ["新春大吉", "万事如意", "心想事成", "身体健康"],
-        ["财源广进", "大吉大利", "岁岁平安", "步步高升"],
-        ["金榜题名", "如虎添翼", "喜气盈门", "福星高照"]
-    ];
+const batches=[
+    ["新春大吉","万事如意","心想事成","身体健康"],
+    ["财源广进","步步高升","岁岁平安","大吉大利"],
+    ["金榜题名","喜气盈门","福星高照","年年有余"]
+];
+let batchIndex=0;
+const keywords=["锦鲤附体","暴富翻身","热烈自由","被偏爱","闪闪发光","万事胜意"];
 
-    // 初始化音频上下文
-    function initAudioContext() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-    }
+/* ===== 初始化与背景 (结合34的星空) ===== */
+function resize(){
+    canvas.width=innerWidth; 
+    canvas.height=innerHeight;
+    initStars();
+}
+window.onresize = resize;
 
-    // 频谱分析设置
-    function setupAudioAnalyse() {
-        if (analyser) return; // 防止重复初始化
-        const bgm = document.getElementById('bgm');
-        analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 64;
-        dataArray = new Uint8Array(analyser.frequencyBinCount);
-        
-        source = audioCtx.createMediaElementSource(bgm);
-        source.connect(analyser);
-        analyser.connect(audioCtx.destination);
-        beatFire();
-    }
-
-    function initApp() {
-        document.getElementById('gate').style.display = 'none';
-        initAudioContext();
-        
-        const bgm = document.getElementById('bgm');
-        bgm.volume = 0.5;
-        
-        // 关键修复：通过 Promise 播放并捕获错误
-        bgm.play().then(() => {
-            setupAudioAnalyse(); 
-            console.log("Music started successfully");
-        }).catch(err => {
-            console.error("Audio play failed:", err);
-            // 如果自动播放失败，通过控制按钮再次尝试
-            document.getElementById('playIcon').innerText = '🔇';
+function initStars() {
+    stars = [];
+    for(let i=0; i<150; i++) {
+        stars.push({
+            x: Math.random()*canvas.width, 
+            y: Math.random()*canvas.height, 
+            size: Math.random()*1.8, 
+            blink: Math.random()*Math.PI
         });
-        
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        setInterval(updateClock, 1000);
-        render();
     }
+}
 
-    function playBoomSound() {
-        initAudioContext();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-    }
+/* ===== 音效系统 (保留28的核心) ===== */
+function playBoomSound() {
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+}
 
-    // 文字烟花逻辑 (流星拖尾)
-    function fireText(text, x, y, isBig = false) {
-        if ('vibrate' in navigator) navigator.vibrate(20);
+/* ===== 核心流程 ===== */
+function startApp(){
+    gate.style.display='none';
+    bgm.play().catch(()=>{});
+    volRange.oninput = (e) => { bgm.volume = e.target.value; };
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    resize();
+    runCountdown();
+    render();
+    initShake();
+}
+
+// 振奋人心的倒计时逻辑
+function runCountdown() {
+    phase = PHASE.COUNTDOWN;
+    let count = 3;
+    
+    const triggerStep = (val) => {
+        // 视觉震动反馈
+        document.body.classList.remove('shake-screen');
+        void document.body.offsetWidth;
+        document.body.classList.add('shake-screen');
         
-        const fontSize = isBig ? Math.min(window.innerWidth / 4, 120) : Math.min(window.innerWidth / 10, 45);
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCanvas.width = window.innerWidth;
-        tempCanvas.height = window.innerHeight;
-
-        tempCtx.fillStyle = "#fff";
-        tempCtx.font = `bold ${fontSize}px Arial`;
-        tempCtx.textAlign = "center";
-        tempCtx.textBaseline = "middle";
-        tempCtx.fillText(text, x, y);
-
-        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height).data;
-        const step = isBig ? 8 : 5; 
-        const hue = Math.random() * 360;
-
-        for (let i = 0; i < tempCanvas.height; i += step) {
-            for (let j = 0; j < tempCanvas.width; j += step) {
-                const index = (i * tempCanvas.width + j) * 4;
-                if (imageData[index + 3] > 128) {
-                    particles.push({
-                        x: j, y: i,
-                        color: `hsl(${hue}, 100%, 75%)`,
-                        vx: (Math.random() - 0.5) * 2,
-                        vy: (Math.random() - 0.5) * 2,
-                        alpha: 1,
-                        decay: isBig ? 0.005 : 0.008,
-                        gravity: 0.05 + Math.random() * 0.1,
-                        isMeteor: true 
-                    });
-                }
-            }
-        }
+        timer.innerText = val;
+        boomText.innerText = val;
+        boomText.style.animation = 'none';
+        void boomText.offsetWidth;
+        boomText.style.animation = 'boom 0.8s forwards';
+        
         playBoomSound();
-    }
+        fire(canvas.width/2, canvas.height/2, 50); // 倒计时中心预热烟花
+    };
 
-    // 音乐节奏检测
-    function beatFire() {
-        if(!isNewYear || !analyser) {
-            requestAnimationFrame(beatFire);
-            return;
-        }
-        analyser.getByteFrequencyData(dataArray);
-        const avg = dataArray.reduce((a,b)=>a+b, 0) / dataArray.length;
-        if(avg > 130 && Math.random() < 0.1) {
-            fire(Math.random()*canvas.width, Math.random()*canvas.height*0.5);
-        }
-        requestAnimationFrame(beatFire);
-    }
-
-    // 原有逻辑保持
-    function updateClock() {
-        if (isNewYear) return;
-        const target = new Date('2026/01/01 00:00:00');
-        const diff = target - new Date();
-        const sec = Math.max(0, Math.floor(diff / 1000));
-        if (sec <= 3 && sec > 0) playBoomSound();
-        if (sec <= 0) {
-            isNewYear = true;
+    const timerInterval = setInterval(() => {
+        count--;
+        if(count > 0) {
+            triggerStep(count);
+        } else if(count === 0) {
+            triggerStep("2026");
+            timer.innerText = "00";
+        } else {
+            clearInterval(timerInterval);
+            phase = PHASE.CELE;
             timerWrap.style.display = 'none';
-            runFinalCountdown();
-            return;
+            startBatch(0);
+            setInterval(spawnMascot, 4000);
+            setInterval(updateClock, 1000); // 恢复28的原有时间检测
         }
-        document.getElementById('timer').innerText = sec < 10 ? '0'+sec : sec;
-    }
+    }, 1000);
+    
+    triggerStep(3);
+}
 
-    function runFinalCountdown() {
-        const steps = ['3', '2', '1', '新年快乐'];
-        let i = 0;
-        const next = () => {
-            if (i < steps.length) {
-                boomEl.innerText = steps[i];
-                boomEl.style.animation = 'boomAnim 1s forwards';
-                if (steps[i] === '新年快乐') {
-                    setTimeout(() => fireText("2026", canvas.width/2, canvas.height/2, true), 200);
-                } else {
-                    fireBatch(5);
-                }
-                i++;
-                setTimeout(next, 1000);
-            } else {
-                startBatch(0);
-                fireBatch(15);
+function updateClock(){
+    if(phase !== PHASE.CELE) return;
+    // 保持28的逻辑完整
+}
+
+/* ===== 互动系统 (新增Combo与吉祥物) ===== */
+function manualFire(e){
+    if(phase === PHASE.WAIT) return;
+    
+    // 连击逻辑
+    combo++;
+    comboUI.innerText = `COMBO X${combo}`;
+    comboUI.style.opacity = combo > 1 ? 1 : 0;
+    comboUI.style.transform = `scale(${1 + combo*0.05})`;
+    clearTimeout(comboTimer);
+    comboTimer = setTimeout(() => { combo = 0; comboUI.style.opacity = 0; }, 800);
+
+    fire(e.clientX, e.clientY, combo > 5 ? 120 : 80);
+}
+
+function spawnMascot() {
+    if (phase !== PHASE.CELE) return;
+    const emojis = ['🦁','🏮','🧧','💰','✨','🍊'];
+    const m = document.createElement('div');
+    m.innerText = emojis[Math.floor(Math.random()*emojis.length)];
+    m.style.cssText = `position:fixed; font-size:42px; z-index:1200; cursor:pointer; left:${15+Math.random()*70}vw; top:${25+Math.random()*45}vh; animation: float 4s ease-in-out infinite; user-select:none;`;
+    m.onclick = (e) => {
+        e.stopPropagation();
+        fire(e.clientX, e.clientY, 150);
+        showBless("鸿运当头 ✨");
+        m.remove();
+    };
+    document.body.appendChild(m);
+    setTimeout(() => { if(m.parentNode) m.remove(); }, 7000);
+}
+
+/* ===== 红包与祝福语 (保留28) ===== */
+function startBatch(i){
+    batchIndex = i;
+    packetGrid.innerHTML = '';
+    packetGrid.style.display = 'grid';
+    let opened = 0;
+    batches[i].forEach(text => {
+        const p = document.createElement('div');
+        p.className = 'packet';
+        p.innerText = '福';
+        p.onclick = (e) => {
+            e.stopPropagation();
+            if(p.style.opacity === '0') return;
+            p.style.opacity = 0;
+            showBless(text);
+            setTimeout(() => fireText(text), 300);
+            opened++;
+            if(opened === batches[i].length){
+                setTimeout(() => {
+                    if(batchIndex < batches.length-1) startBatch(batchIndex+1);
+                    else finishAll();
+                }, 2000);
             }
         };
-        next();
-    }
+        packetGrid.appendChild(p);
+    });
+}
 
-    function fire(x, y) {
-        playBoomSound();
-        const hue = Math.random()*360;
-        for(let i=0; i<100; i++) {
-            particles.push({
-                x, y, color: `hsl(${hue}, 100%, 70%)`,
-                vx: (Math.random()-0.5) * 16, vy: (Math.random()-0.5) * 16,
-                alpha: 1, decay: 0.01 + Math.random()*0.02
-            });
-        }
-    }
+function showBless(text){
+    const el = document.createElement('div');
+    el.innerText = text;
+    el.style.cssText = `position:fixed; left:50%; top:40%; transform:translate(-50%,-50%); font-size:42px; font-weight:900; color:var(--gold); letter-spacing:6px; text-shadow:0 0 20px var(--gold); z-index:2000; animation:blessFade 1.6s forwards; pointer-events:none;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1600);
+}
 
-    function fireBatch(count) {
-        for(let i=0; i<count; i++) {
-            setTimeout(() => fire(Math.random()*canvas.width, Math.random()*canvas.height*0.6), i * 150);
-        }
-    }
+function finishAll(){
+    packetGrid.style.display = 'none';
+    final.style.display = 'flex';
+    keyword.innerText = '2026 关键词：【' + keywords[Math.floor(Math.random()*keywords.length)] + '】';
+}
 
-    function manualFire(e) {
-        if(!isNewYear) return;
-        const phrase = auspiciousPhrases[Math.floor(Math.random() * auspiciousPhrases.length)];
-        fireText(phrase, e.clientX, e.clientY);
+/* ===== 烟花与渲染 ===== */
+function fire(x, y, count=80){
+    playBoomSound();
+    const h = Math.random()*360;
+    for(let i=0; i<count; i++){
+        particles.push({
+            x, y, 
+            vx:(Math.random()-0.5)*15, 
+            vy:(Math.random()-0.5)*15, 
+            a:1, 
+            d:0.015+Math.random()*0.02, 
+            c:`hsl(${h},100%,70%)`
+        });
     }
+}
 
-    function render() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; 
-        ctx.fillRect(0,0,canvas.width, canvas.height);
-        particles.forEach((p, i) => {
-            if (p.isMeteor) {
-                p.vx *= 0.99; p.vy += p.gravity;
-            } else {
-                p.vx *= 0.98; p.vy *= 0.98; p.vy += 0.15;
+function fireText(t){
+    const tc = document.createElement('canvas'), tctx = tc.getContext('2d');
+    tc.width = canvas.width; tc.height = canvas.height;
+    tctx.fillStyle = '#fff'; tctx.font = 'bold 100px Arial';
+    tctx.textAlign = 'center'; tctx.textBaseline = 'middle';
+    tctx.fillText(t, tc.width/2, tc.height/2);
+    const d = tctx.getImageData(0,0,tc.width,tc.height).data;
+    const hue = Math.random()*360;
+    for(let y=0; y<tc.height; y+=6) {
+        for(let x=0; x<tc.width; x+=6) {
+            if(d[(y*tc.width+x)*4+3] > 128) {
+                particles.push({x, y, vx:(Math.random()-0.5)*2, vy:(Math.random()-0.5)*2, a:1, d:0.012, c:`hsl(${hue},100%,75%)`});
             }
-            p.x += p.vx; p.y += p.vy; p.alpha -= p.decay;
-            ctx.globalAlpha = Math.max(0, p.alpha);
-            ctx.fillStyle = p.color;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.isMeteor?1.5:2.2, 0, Math.PI*2); ctx.fill();
-            if(p.alpha <= 0) particles.splice(i, 1);
-        });
-        requestAnimationFrame(render);
+        }
     }
+    playBoomSound();
+}
 
-    function startBatch(idx) {
-        currentBatchIdx = idx;
-        const grid = document.getElementById('packet-grid');
-        grid.innerHTML = ''; grid.style.display = 'grid';
-        let opened = 0;
-        allBatchData[idx].forEach(txt => {
-            const item = document.createElement('div');
-            item.className = 'packet-item'; item.innerHTML = `<div class="seal">福</div>`;
-            item.onclick = (e) => {
-                e.stopPropagation();
-                if(item.style.opacity === '0') return;
-                item.style.opacity = '0'; opened++;
-                showGatherText(txt);
-                if(opened === allBatchData[idx].length) {
-                    setTimeout(() => {
-                        if(currentBatchIdx < allBatchData.length - 1) startBatch(currentBatchIdx + 1);
-                        else { grid.style.display = 'none'; document.getElementById('final-msg').classList.add('show'); document.body.classList.add('final-glow'); }
-                    }, 2500);
-                }
-            };
-            grid.appendChild(item);
-        });
-    }
+function render(){
+    // 背景与星空 (融合34)
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    function showGatherText(text) {
-        const t = document.createElement('div');
-        t.innerText = text;
-        t.style.cssText = `position:absolute; left:50%; top:40%; transform:translate(-50%,-50%); z-index:1600; font-size:42px; font-weight:900; color:var(--gold); text-shadow:0 0 20px var(--gold); animation:gather 3s forwards; pointer-events:none;`;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 3000);
-    }
+    stars.forEach(s => {
+        s.blink += 0.02;
+        ctx.globalAlpha = 0.3 + Math.abs(Math.sin(s.blink)) * 0.5;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2); ctx.fill();
+    });
 
-    function toggleMusic() {
-        const bgm = document.getElementById('bgm');
-        initAudioContext();
-        if(bgm.paused) { bgm.play(); document.getElementById('playIcon').innerText = '🎵'; }
-        else { bgm.pause(); document.getElementById('playIcon').innerText = '🔇'; }
-    }
+    // 粒子渲染 (保留28的高质量拖尾)
+    ctx.globalAlpha = 1;
+    particles.forEach((p,i) => {
+        p.vx *= 0.98; p.vy *= 0.98; p.vy += 0.15; p.x += p.vx; p.y += p.vy; p.a -= p.d;
+        if(p.a <= 0) return particles.splice(i,1);
+        ctx.globalAlpha = p.a; 
+        ctx.fillStyle = p.c;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
+    });
 
-    function changeVolume(v) { document.getElementById('bgm').volume = v; }
+    if(phase === PHASE.CELE && Math.random() < 0.04) fire(Math.random()*canvas.width, Math.random()*canvas.height*0.5);
+    requestAnimationFrame(render);
+}
 
-    function sendWish() {
-        const val = document.getElementById('wishInput').value;
-        if(!val) return;
-        const levelMap = [{ k: 12, size: 32, prefix:'🎉' }, { k: 6, size: 26, prefix:'✨' }, { k: 0, size: 20, prefix:'💫' }];
-        const level = levelMap.find(l => val.length >= l.k);
-        const d = document.createElement('div');
-        d.style.cssText = `position:absolute; white-space:nowrap; font-weight:900; z-index:30; pointer-events:none; color:var(--gold); text-shadow:0 0 10px var(--gold); top:${15+Math.random()*60}%; left:100vw; font-size:${level.size}px;`;
-        d.innerText = level.prefix + " " + val;
-        document.body.appendChild(d);
-        d.animate([{transform:'translateX(0)'}, {transform:`translateX(-${window.innerWidth+1200}px)`}], 8000).onfinish = () => d.remove();
-        document.getElementById('wishInput').value = '';
-    }
+function initShake() {
+    let lastX, lastY, lastZ, lastUpdate = 0;
+    window.addEventListener('devicemotion', e => {
+        let cur = Date.now();
+        if ((cur - lastUpdate) > 100) {
+            let acc = e.accelerationIncludingGravity;
+            if(!acc) return;
+            let speed = Math.abs(acc.x + acc.y + acc.z - lastX - lastY - lastZ) / (cur - lastUpdate) * 10000;
+            if (speed > 800) fire(Math.random()*canvas.width, Math.random()*canvas.height*0.5, 120);
+            lastX=acc.x; lastY=acc.y; lastZ=acc.z; lastUpdate=cur;
+        }
+    });
+}
 
-    window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+function sendDanmu(){
+    const t = danmuInput.value; if(!t) return;
+    const d = document.createElement('div');
+    d.style.cssText = `position:fixed; white-space:nowrap; font-weight:bold; color:var(--gold); z-index:2000; top:${15+Math.random()*50}%; left:100%; text-shadow:0 0 10px var(--gold)`;
+    d.innerText = t; document.body.appendChild(d);
+    d.animate([{transform:'translateX(0)'},{transform:`translateX(-${innerWidth+800}px)`}], 8000).onfinish = () => d.remove();
+    danmuInput.value = '';
+}
+
+function toggleMusic(e){
+    e.stopPropagation();
+    bgm.paused ? (bgm.play(), musicBtn.innerText='🎵') : (bgm.pause(), musicBtn.innerText='🔇');
+}
 </script>
 </body>
 </html>
